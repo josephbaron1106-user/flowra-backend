@@ -1,0 +1,68 @@
+# ==============================================================================
+# FLOWRA BACKEND DOCKER COMPOSE CONFIGURATION
+# Coordinates Flowra Spring Boot backend and MySQL 8.0 database
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. FLOWRA MYSQL DATABASE SERVICE
+  # ----------------------------------------------------------------------------
+  flowra-db:
+    image: mysql:8.0
+    container_name: flowra-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-1212}
+      MYSQL_DATABASE: ${DB_NAME:-flowra_db}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - flowra_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-1212}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - flowra-network
+
+  # ----------------------------------------------------------------------------
+  # 2. FLOWRA SPRING BOOT BACKEND API SERVICE
+  # ----------------------------------------------------------------------------
+  flowra-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flowra-backend-app
+    restart: unless-stopped
+    depends_on:
+      flowra-db:
+        condition: service_healthy
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    environment:
+      SPRING_APPLICATION_NAME: flowra-backend
+      SERVER_PORT: 8080
+      DB_URL: jdbc:mysql://flowra-db:3306/${DB_NAME:-flowra_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-1212}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL:-true}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_TdVV3x1sj1qTZy}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-j8Z36S1edgCPztljJuXTxTcG}
+      RAZORPAY_CURRENCY: ${RAZORPAY_CURRENCY:-INR}
+      RAZORPAY_COMPANY_NAME: ${RAZORPAY_COMPANY_NAME:-FLOWRA Artisanal Florist}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173}
+    env_file:
+      - .env
+    networks:
+      - flowra-network
+
+volumes:
+  flowra_db_data:
+    driver: local
+
+networks:
+  flowra-network:
+    driver: bridge

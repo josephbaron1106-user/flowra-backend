@@ -1,0 +1,34 @@
+﻿# ==============================================================================
+# FLOWRA BACKEND .dockerignore
+# Excludes unnecessary files and secrets from Docker build context
+# ==============================================================================
+
+# Version Control
+.git
+.gitignore
+
+# IDE & Editor metadata
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+.apt_generated
+
+# Build outputs
+target/
+build/
+*.class
+
+# Environment variables & local secrets (passed via Docker run or docker-compose)
+.env
+*.log
+
+# Documentation & temporary files
+*.md
+HELP.md
+.mvn/
+mvnw
+mvnw.cmd
