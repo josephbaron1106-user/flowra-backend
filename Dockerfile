@@ -40,8 +40,8 @@ USER flowra:flowra
 # 5. Expose default port (Render automatically sets $PORT environment variable at runtime)
 EXPOSE 8080
 
-# 6. Container-optimized JVM memory & GC settings
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom"
+# 6. Container-optimized JVM memory, GC settings, and forced IPv4 priority (fixes Render IPv6 Connection Refused)
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Djava.security.egd=file:/dev/./urandom"
 
 # 7. Start application with dynamic Render port binding and 0.0.0.0 network interface
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
