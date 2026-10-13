@@ -37,15 +37,11 @@ RUN chown -R flowra:flowra /app
 # 4. Switch to non-root user
 USER flowra:flowra
 
-# 5. Expose default Spring Boot service port
+# 5. Expose default port (Render automatically sets $PORT environment variable at runtime)
 EXPOSE 8080
 
 # 6. Container-optimized JVM memory & GC settings
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
 
-# 7. Built-in container health check endpoint
-#HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
- # CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-8080}/api/health || exit 1
-
-# 8. Start application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# 7. Start application with dynamic Render port binding and 0.0.0.0 network interface
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
