@@ -41,7 +41,7 @@ USER flowra:flowra
 EXPOSE 8080
 
 # 6. Container-optimized JVM memory & GC settings
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom"
 
 # 7. Start application with dynamic Render port binding and 0.0.0.0 network interface
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
