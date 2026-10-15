@@ -15,6 +15,7 @@ COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 # 2. Copy source code and package JAR (skipping test suite for container build)
+ARG CACHEBUST=20261015-1825
 COPY src ./src
 RUN mvn clean package -DskipTests
 
